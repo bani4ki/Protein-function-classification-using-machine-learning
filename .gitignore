@@ -1,0 +1,5 @@
+# ignore dataset files
+*.csv
+*.tsv
+# ignore OS junk
+.DS_Store
