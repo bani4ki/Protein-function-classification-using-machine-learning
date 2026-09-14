@@ -26,7 +26,7 @@ df['Functional_class'] = df['Keywords'].apply(find_functional_class)
 
 clean_df = df.dropna(subset=['Functional_class', 'Sequence'])
 
-clean_df[['Sequence', 'Functional_class']].to_csv("big_dataset.csv", index=False)
+clean_df[['Entry','Sequence', 'Functional_class']].to_csv("big_dataset.csv", index=False)
 
 
 df_clean = pd.read_csv("big_dataset.csv")
@@ -59,3 +59,4 @@ if __name__ == "__main__":
     print(f"Rows and columns of dummy dataset: {dataset_dummy.shape}\n")
     print("Dummy dataset functional classes separation:")
     print(dataset_dummy['Functional_class'].value_counts())
+print(df.head())

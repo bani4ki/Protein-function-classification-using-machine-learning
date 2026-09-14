@@ -5,6 +5,7 @@ Created on Tue Sep  8 15:56:25 2026
 
 @author: bani4ki
 """
+#Python dictionary containing amino acids and their properties of type A : {name: int, polarity: str, charge: str, aromatic: bool, hydrophobic: bool}
 
 amino_acids = {
     "A": {"name": "Alanine", "three_letter": "Ala", "weight": 71.04, "polarity": "nonpolar", "charge": "neutral", "aromatic": False, "hydrophobic": True},
@@ -28,3 +29,6 @@ amino_acids = {
     "Y": {"name": "Tyrosine", "three_letter": "Tyr", "weight": 163.06, "polarity": "polar", "charge": "neutral", "aromatic": True, "hydrophobic": False}, # Polar OH- group makes its sidechain overall hydrophilic
     "V": {"name": "Valine", "three_letter": "Val", "weight": 99.07, "polarity": "nonpolar", "charge": "neutral", "aromatic": False, "hydrophobic": True}
 }
+
+# Python list containing protein motifs in regex format.
+motifs = ["DRY","NP..Y","CW.P","G.G..G","VAIK","HRD","DFG","APE","A.K","L......L......L......L","KIK.LK.KK"]
