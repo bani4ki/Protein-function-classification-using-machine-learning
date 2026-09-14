@@ -28,7 +28,7 @@ def main():
     parser.add_argument("--max-depth", default=20,
                         help="Max depth of the RF classifier as an integer")
     parser.add_argument("--random-state-rf", default=42,
-                        help="Random seed of the RF classifier")
+                        help="Random seed of the RF classifier as an integer")
     #Optional arguments - additional data to test
     parser.add_argument("--dataset-to-classify",
                         help="Path to dataset to be classified by trained model")

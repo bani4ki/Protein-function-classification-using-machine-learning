@@ -23,14 +23,14 @@ def amino_acid_composition(sequence, amino_acids):
     ----------
     sequence : str
         A sequence of amino acids using the standard single-letter code.
-    amino_acids : list[str]
-        Python list containing protein motifs in regex format.
-
+    amino_acids : dictionary
+        Python dictionary containing amino acids and their properties.
+        
     Returns
     -------
     dictionary
         Python dictionary containing amino acid composition and frequency
-        of the sequence.
+        in the sequence.
     """
     metrics = {}
     sequence = sequence.upper()
@@ -44,8 +44,24 @@ def amino_acid_composition(sequence, amino_acids):
     return metrics
 
 def calculate_properties(sequence, amino_acids, motifs):
+    """
+    Calculates the properties of amino acids in a sequence by count and by frequency.
 
-    
+    Parameters
+    ----------
+    sequence : str
+        A sequence of amino acids using the standard single-letter code.
+    amino_acids : dictionary
+        Python dictionary containing amino acids and their properties.
+    motifs : list[str]
+        Python list containing protein motifs in regex format.
+        
+    Returns
+    -------
+    dictionary
+        Python dictionary containing amino acid properties and their frequency,
+        and motif count and frequency in the sequence.
+    """
     metrics = {}
     sequence = sequence.upper()
 
@@ -73,6 +89,27 @@ def calculate_properties(sequence, amino_acids, motifs):
     return metrics
 
 def dataset_preparation_for_rf(dataset, amino_acids, motifs):
+    """
+    Prepares a dataset or a single sequence to be classified by the RF model 
+    by formatting it in a suitable way. Calculates the amino acid composition 
+    and properties of the sequence(s).
+
+    Parameters
+    ----------
+    dataset : OS path as str or Pandas Dataframe
+        Set of identifiers, amino acid sequences and their functional class 
+        in separate columns. 
+    amino_acids : dictionary
+        Python dictionary containing amino acids and their properties.
+    motifs : list[str]
+        Python list containing protein motifs in regex format.
+
+    Returns
+    -------
+    Pandas DataFrame
+        A dataframe with separate columns for identifiers, amino acid sequences and their 
+        functional class, and their amino acid properties and composition.
+    """
     if isinstance(dataset, pd.DataFrame):
         df = dataset
     else: 
@@ -84,12 +121,54 @@ def dataset_preparation_for_rf(dataset, amino_acids, motifs):
     df_rf = df.loc[ : , (df.columns != "Sequence")]
     return df_rf
 
-def protein_classification(dataset, amino_acids, motifs, test_size=0.2, random_state_split=42, bootstrap=False, max_depth=20,random_state_rf = 42):
+def protein_classification(dataset, amino_acids, motifs, 
+                           test_size=0.2, random_state_split=42, 
+                           bootstrap=False, max_depth=20,random_state_rf = 42):
+    """
+    Trains and tests a Random Forest classifier to predict proteins' 
+    functional class. Optional parameters are set as the calculated 
+    optimal parameters after hyperparameter tuning of the model.
+
+    Parameters
+    ----------
+    dataset : Pandas DataFrame
+        A dataframe with separate columns for identifiers, amino acid sequences
+        and functional class, and their amino acid properties and composition.
+    amino_acids : dictionary
+        Python dictionary containing amino acids and their properties.
+    motifs : list[str]
+        Python list containing protein motifs in regex format.
+    test_size : float, optional
+        Portion of data to be used as a training dataset. The default is 0.2.
+    random_state_split : int, optional
+        Random seed of the data train/test split. The default is 42.
+    bootstrap : bool, optional
+        Is the model using bootstrapping. The default is False.
+    max_depth : int, optional
+        Max depth of the RF classifier. The default is 20.
+    random_state_rf : int, optional
+        Random seed of the RF classifier. The default is 42.
+
+    Returns
+    -------
+    results_df : Pandas DataFrame
+        A dataframe with separate columns for identifiers of the test dataset 
+        and their predicted functional class via the RF model, and their actual 
+        functional class.
+    rf_model : RandomForestClassifier
+        The trained random forest model instance.
+    label_encoder : LabelEncoder
+        The fitted target label encoder.
+    scaler : StandardScaler
+        The fitted feature scaler.
+    """
     
     df_rf = dataset_preparation_for_rf(dataset, amino_acids, motifs)
-    X,y = df_rf.loc[ : , (df_rf.columns != "Functional_class") & (df_rf.columns != "Entry")], df_rf["Functional_class"]
+    X,y = df_rf.loc[ : , (df_rf.columns != "Functional_class") 
+                    & (df_rf.columns != "Entry")], df_rf["Functional_class"]
     entries = df_rf["Entry"]
-    X_train, X_test, y_train, y_test, entry_train, entry_test = train_test_split(X,y,entries,test_size = test_size, random_state = random_state_split)
+    X_train, X_test, y_train, y_test, entry_train, entry_test = train_test_split(
+        X,y,entries,test_size = test_size, random_state = random_state_split)
     
     
     label_encoder = LabelEncoder()
@@ -101,19 +180,50 @@ def protein_classification(dataset, amino_acids, motifs, test_size=0.2, random_s
     X_train = scaler.fit_transform(X_train) 
     X_test = scaler.transform(X_test)
     
-    rf_model = RandomForestClassifier(bootstrap=bootstrap, max_depth=max_depth,random_state = random_state_rf)
+    rf_model = RandomForestClassifier(bootstrap=bootstrap, max_depth=max_depth,
+                                      random_state = random_state_rf)
     rf_model.fit(X_train,y_train)
     y_pred = rf_model.predict(X_test)
     
-    results_df = pd.DataFrame({"Entry": entry_test,"Predicted_class": label_encoder.inverse_transform(y_pred),"Actual_class": label_encoder.inverse_transform(y_test)})
+    results_df = pd.DataFrame({"Entry": entry_test,
+                               "Predicted_class": label_encoder.inverse_transform(y_pred),
+                               "Actual_class": label_encoder.inverse_transform(y_test)})
     return results_df, rf_model,label_encoder, scaler
 
 
 def classifier(dataset, model, amino_acids, motifs, label_encoder, scaler):
+    """
+    Fits a trained Random Forest classifier to a dataset to predict proteins' 
+    functional class.
+
+    Parameters
+    ----------
+    dataset : Pandas DataFrame
+        A dataframe with separate columns for identifiers, amino acid sequences
+        and functional class, and their amino acid properties and composition.
+    model : RandomForestClassifier
+        A trained random forest model.
+    amino_acids : dictionary
+        Python dictionary containing amino acids and their properties.
+    motifs : list[str]
+        Python list containing protein motifs in regex format.
+    label_encoder : LabelEncoder
+        A target label encoder.
+    scaler : StandardScaler
+        A feature scaler.
+
+    Returns
+    -------
+    Pandas DataFrame
+        A dataframe with separate columns for identifiers of the dataset 
+        and their sequences' predicted functional class via the RF model. If 
+        their actual functional class exists, it is included.
+    """
     
     if dataset is not None:
         df_rf = dataset_preparation_for_rf(dataset, amino_acids, motifs)
-        X = df_rf.loc[ : , (df_rf.columns != "Functional_class") & (df_rf.columns != "Entry")]
+        X = df_rf.loc[ : , (df_rf.columns != "Functional_class")
+                      & (df_rf.columns != "Entry")]
         if "Functional_class" in df_rf.columns:
             y = df_rf["Functional_class"]
             y = label_encoder.transform(y)
@@ -126,7 +236,8 @@ def classifier(dataset, model, amino_acids, motifs, label_encoder, scaler):
         y_pred = model.predict(X)
     
     
-        results_df = pd.DataFrame({"Entry": entries,"Predicted_class": label_encoder.inverse_transform(y_pred)})
+        results_df = pd.DataFrame({"Entry": entries,
+                                   "Predicted_class": label_encoder.inverse_transform(y_pred)})
         if y is not None:
             results_df["Actual_class"] = label_encoder.inverse_transform(y)
         else:
@@ -136,6 +247,30 @@ def classifier(dataset, model, amino_acids, motifs, label_encoder, scaler):
         return results_df
     
 def sequence_classifier(sequence, model, amino_acids, motifs, label_encoder, scaler):
+    """
+    Fits a trained Random Forest classifier to a dataset to predict proteins' 
+    functional class.
+
+    Parameters
+    ----------
+    sequence : str
+        A sequence of amino acids using the standard single-letter code.
+    model : RandomForestClassifier
+        A trained random forest model.
+    amino_acids : dictionary
+        Python dictionary containing amino acids and their properties.
+    motifs : list[str]
+        Python list containing protein motifs in regex format.
+    label_encoder : LabelEncoder
+        A target label encoder.
+    scaler : StandardScaler
+        A feature scaler.
+
+    Returns
+    -------
+    str
+        The sequence's predicted functional class via the RF model.
+    """
     df=pd.DataFrame({"Sequence": [sequence.upper()]})
     df_rf=dataset_preparation_for_rf(df, amino_acids, motifs)
     X = df_rf.loc[ : , (df_rf.columns != "Functional_class")]
@@ -144,6 +279,20 @@ def sequence_classifier(sequence, model, amino_acids, motifs, label_encoder, sca
     return label_encoder.inverse_transform(y_pred)
 
 def create_class_results_file(results_df):
+    """
+    Writes results of model classification to a csv file with unique name.
+
+    Parameters
+    ----------
+    results_df : Pandas DataFrame
+        A dataframe with separate columns for identifiers of a dataset,
+        their predicted functional class, and their actual functional class.
+
+    Returns
+    -------
+    int
+        Suffix of the newly created file name.
+    """
     filename = "protein_classification_results.csv"
     basename = "protein_classification_results"
     extension=".csv"
@@ -159,6 +308,22 @@ def create_class_results_file(results_df):
     return suffix
 
 def performance_evaluation_display(results_df, label_encoder):
+    """
+    Evaluates performance of a classifier by calculating its accuracy and 
+    creating a classification report and confusion matrix. Prints results.
+
+    Parameters
+    ----------
+    results_df : Pandas DataFrame
+        A dataframe with separate columns for identifiers of a dataset,
+        their predicted functional class, and their actual functional class.
+    label_encoder : LabelEncoder
+        A target label encoder.
+
+    Returns
+    -------
+    None
+    """
     y_pred=label_encoder.transform(results_df["Predicted_class"])
     y = label_encoder.transform(results_df["Actual_class"])
     print(results_df.head())
