@@ -30,9 +30,9 @@ def main():
     parser.add_argument("--random-state-rf", default=42,
                         help="Random seed of the RF classifier as an integer")
     #Optional arguments - additional data to test
-    parser.add_argument("--dataset-to-classify",
+    parser.add_argument("--predict-class",
                         help="Path to dataset to be classified by trained model")
-    parser.add_argument("--protein-to-classify",
+    parser.add_argument("--predict-sequence",
                         help="Protein amino acid sequence to be classified by trained model as a string")
     
     #Parse agument from command line
@@ -46,19 +46,25 @@ def main():
                                                                      args.bootstrap, 
                                                                      args.max_depth,
                                                                      args.random_state_rf)
+    if args.predict_class:
+        print("\n Known dataset classification results: \n ")
+    else:
+        print("\n Dataset classification results: \n ")
+        
     performance_evaluation_display(results_df, label_encoder)
     
     create_class_results_file(results_df)
     
-    if args.dataset_to_classify:
-        results_df = classifier(args.dataset_to_classify, model, amino_acids, motifs, label_encoder, scaler)
-    
+    if args.predict_class:
+        results_df = classifier(args.predict_class, model, amino_acids, motifs, label_encoder, scaler)
+        print("\n Unknown dataset classification results: \n ")
+        
         performance_evaluation_display(results_df, label_encoder)
     
         create_class_results_file(results_df)
     
-    if args.protein_to_classify:
-        y_pred = sequence_classifier(args.protein_to_classify, model, amino_acids, motifs, label_encoder, scaler)
+    if args.predict_sequence:
+        y_pred = sequence_classifier(args.predict_sequence, model, amino_acids, motifs, label_encoder, scaler)
         print(y_pred)
     
 if __name__ == "__main__":

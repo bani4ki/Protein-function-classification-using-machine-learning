@@ -326,11 +326,11 @@ def performance_evaluation_display(results_df, label_encoder):
     """
     y_pred=label_encoder.transform(results_df["Predicted_class"])
     y = label_encoder.transform(results_df["Actual_class"])
-    print(results_df.head())
+    print(f"Results head: \n {results_df.head()} \n ")
     if y is not None:
-        print(accuracy_score(y, y_pred))
-        print(classification_report(y,y_pred))
-        print(confusion_matrix(y,y_pred)) 
+        print(f"Accuracy score of classifier: {round(accuracy_score(y, y_pred),2)} \n ")
+        print(f"Classification report: \n {classification_report(y,y_pred)} \n ")
+        print(f"Confusion matrix: \n {confusion_matrix(y,y_pred)} \n ") 
     else: 
         print("\n Cannot evaluate classifier performance: Unknown actual class of proteins.")
     
