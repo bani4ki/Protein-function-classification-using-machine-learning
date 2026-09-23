@@ -278,7 +278,7 @@ def sequence_classifier(sequence, model, amino_acids, motifs, label_encoder, sca
     y_pred = model.predict(X)
     return label_encoder.inverse_transform(y_pred)
 
-def create_class_results_file(results_df):
+def create_class_results_file(results_df, output_directory="."):
     """
     Writes results of model classification to a csv file with unique name.
 
@@ -297,10 +297,12 @@ def create_class_results_file(results_df):
     basename = "protein_classification_results"
     extension=".csv"
     suffix = 0
+    filename = os.path.join(output_directory, f"{basename}{extension}")
+
     
     while os.path.exists(filename):
         suffix += 1
-        filename = f"{basename}_{suffix}{extension}"
+        filename = os.path.join(output_directory, f"{basename}_{suffix}{extension}")
         
     results_df.to_csv(filename, index=False)
 

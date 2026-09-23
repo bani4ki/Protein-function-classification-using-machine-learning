@@ -9,6 +9,8 @@ Created on Thu Sep 10 10:29:37 2026
 import argparse
 from functions import protein_classification, classifier, create_class_results_file, performance_evaluation_display, sequence_classifier
 from dictionaries import amino_acids, motifs
+import os
+
 
 
 def main():
@@ -53,15 +55,22 @@ def main():
         
     performance_evaluation_display(results_df, label_encoder)
     
-    create_class_results_file(results_df)
+    results_dir = "results"
+    train_test_dir = os.path.join(results_dir,"train_test_results")
+    os.makedirs(train_test_dir, exist_ok=True)
+    
+    create_class_results_file(results_df, output_directory= train_test_dir)
     
     if args.predict_class:
         results_df = classifier(args.predict_class, model, amino_acids, motifs, label_encoder, scaler)
         print("\n Unknown dataset classification results: \n ")
         
         performance_evaluation_display(results_df, label_encoder)
-    
-        create_class_results_file(results_df)
+        
+        implementation_dir = os.path.join(results_dir,"implementation_results")
+        os.makedirs(implementation_dir, exist_ok=True)
+        
+        create_class_results_file(results_df, output_directory=implementation_dir)
     
     if args.predict_sequence:
         y_pred = sequence_classifier(args.predict_sequence, model, amino_acids, motifs, label_encoder, scaler)
