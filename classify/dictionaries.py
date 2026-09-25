@@ -27,7 +27,9 @@ amino_acids = {
     "T": {"name": "Threonine", "three_letter": "Thr", "weight": 101.05, "polarity": "polar", "charge": "neutral", "aromatic": False, "hydrophobic": False},
     "W": {"name": "Tryptophan", "three_letter": "Trp", "weight": 186.08, "polarity": "nonpolar", "charge": "neutral", "aromatic": True, "hydrophobic": True},
     "Y": {"name": "Tyrosine", "three_letter": "Tyr", "weight": 163.06, "polarity": "polar", "charge": "neutral", "aromatic": True, "hydrophobic": False}, # Polar OH- group makes its sidechain overall hydrophilic
-    "V": {"name": "Valine", "three_letter": "Val", "weight": 99.07, "polarity": "nonpolar", "charge": "neutral", "aromatic": False, "hydrophobic": True}
+    "V": {"name": "Valine", "three_letter": "Val", "weight": 99.07, "polarity": "nonpolar", "charge": "neutral", "aromatic": False, "hydrophobic": True},
+    "U": {"name": "Selenocysteine", "three_letter": "Sec", "weight": 150.05, "polarity": "polar", "charge": "neutral", "aromatic": False, "hydrophobic": False},
+    "X": {"name": "Unknown", "three_letter": "Xaa", "weight": None, "polarity": None, "charge": None, "aromatic": None, "hydrophobic": None}
 }
 
 # Python list containing protein motifs in regex format.

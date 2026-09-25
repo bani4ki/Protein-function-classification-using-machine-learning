@@ -34,8 +34,13 @@ def amino_acid_composition(sequence, amino_acids):
     """
     metrics = {}
     sequence = sequence.upper()
+    for aa in sequence:
+        if aa not in amino_acids.keys():
+            raise ValueError(f"Unknown amino acid '{aa}' found in sequence. Please add it to the amino acid dictionary, delete it, or replace it with X.")
     
     for aa in amino_acids.keys():
+        if aa == "X":
+            continue
         count = sequence.count(aa)
         metrics[f"{aa}_count"] = count
         frequency = count/len(sequence)
@@ -76,7 +81,8 @@ def calculate_properties(sequence, amino_acids, motifs):
     metrics["Aromatic_fq"] = round(aromatic/len(sequence),2)
     
     charged = sum(
-        1 for aa in sequence if aa in amino_acids and amino_acids[aa].get("charge") != "neutral"
+        1 for aa in sequence if aa in amino_acids and amino_acids[aa].get("charge") != "neutral"  
+        and amino_acids[aa].get("charge") != None #handling X 
     )
     metrics["Charged_fq"] = round(charged/len(sequence),2)
     
@@ -248,7 +254,7 @@ def classifier(dataset, model, amino_acids, motifs, label_encoder, scaler):
     
 def sequence_classifier(sequence, model, amino_acids, motifs, label_encoder, scaler):
     """
-    Fits a trained Random Forest classifier to a dataset to predict proteins' 
+    Fits a trained Random Forest classifier to an amino acid sequence to predict proteins' 
     functional class.
 
     Parameters
@@ -271,6 +277,7 @@ def sequence_classifier(sequence, model, amino_acids, motifs, label_encoder, sca
     str
         The sequence's predicted functional class via the RF model.
     """
+    
     df=pd.DataFrame({"Sequence": [sequence.upper()]})
     df_rf=dataset_preparation_for_rf(df, amino_acids, motifs)
     X = df_rf.loc[ : , (df_rf.columns != "Functional_class")]
@@ -307,7 +314,7 @@ def create_class_results_file(results_df, output_directory="."):
     results_df.to_csv(filename, index=False)
 
     print(f"Results successfully written to disk in file {filename}")
-    return suffix
+    return filename
 
 def performance_evaluation_display(results_df, label_encoder):
     """
