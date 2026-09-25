@@ -44,7 +44,6 @@ You can see all optional parameters by running `python classify.py --help`.
   - `--random-state-split`: Random seed of the data train/test split as an integer. Default 42.
   - `--bootstrap`: Bootstrap as a boolean. Default False.
   - `--max-depth`: Max depth of the RF classifier as an integer. Default 20
-                        help="Max depth of the RF classifier as an integer")
   - `--random-state-rf`: Random seed of the RF classifier as an integer. Default 42.
 - Optional parameters: Additional data to be classified or tested 
   - `--predict-class`: Path to dataset to be classified by trained model. These datasets can be obtained by following instructions in the [supplementary materials](./classify/supplementary_materials) folder.
